@@ -22,10 +22,30 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    isAdmin: {
+    role: {
+      type: String,
+      default: "user",
+    },
+    isBlocked: {
       type: Boolean,
       default: false,
     },
+    cart: {
+      type: Array,
+      default: [],
+    },
+    address: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "Address",
+      },
+    ],
+    wishlist: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "Product",
+      },
+    ],
   },
   {
     timestamps: true,
@@ -33,4 +53,5 @@ const UserSchema = new mongoose.Schema(
 );
 
 const User = mongoose.model("users", UserSchema);
+
 module.exports = { User };

@@ -59,10 +59,16 @@ const loginUser = async (req, res) => {
 // FETCH ALL USERS
 const fetchAllUsers = async (req, res) => {
   try {
-    const user = await User.find().sort({
+    const users = await User.find().sort({
       createdAt: "desc",
     });
-    res.status(200).json(user);
+    const usersWithIdAsString = users.map((user) => {
+      const userObj = user.toObject();
+      userObj._id = userObj._id.toString();
+      return userObj;
+    });
+
+    res.status(200).json(usersWithIdAsString);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -110,6 +116,42 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// BLOCK A USER
+const blockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        isBlocked: true,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json("User blocked");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// UNBLOCK A USER
+const unblockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        isBlocked: false,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json("User unblocked");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -117,4 +159,6 @@ module.exports = {
   fetchSingleUser,
   updateUser,
   deleteUser,
+  blockUser,
+  unblockUser,
 };

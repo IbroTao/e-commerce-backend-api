@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { User } = require("../models/user.model");
 
 const verifyUser = async (req, res, next) => {
   const authHeader = req.headers.token;
@@ -22,16 +23,18 @@ const verifyAndAuthorizeUser = (req, res, next) => {
   });
 };
 
-const verifyAndAuthorizeAdmin = (req, res, next) => {
-  verifyToken(req, res, () => {
-    if (req.user.isAdmin) {
-      next();
-    } else res.status(401).json("You are not authorized");
-  });
+const verifyAdmin = async (req, res, next) => {
+  const { email } = req.user;
+  const user = await User.findOne({ email });
+  if (user.role !== "admin") {
+    res.status(403).json("You are not an admin");
+  } else {
+    next();
+  }
 };
 
 module.exports = {
   verifyUser,
   verifyAndAuthorizeUser,
-  verifyAndAuthorizeAdmin,
+  verifyAdmin,
 };
