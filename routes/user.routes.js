@@ -4,6 +4,8 @@ const {
   loginUser,
   fetchSingleUser,
   fetchAllUsers,
+  updateUser,
+  deleteUser,
 } = require("../controllers/user.controller");
 const {
   verifyUser,
@@ -14,7 +16,9 @@ const router = Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.get("/user/:id", verifyUser, fetchSingleUser);
-router.get("/user/all", verifyAndAuthorizeAdmin, fetchAllUsers);
+router.get("/:id", verifyUser, fetchSingleUser);
+router.get("/all", verifyAndAuthorizeAdmin, fetchAllUsers);
+router.put("/update/:id", verifyAndAuthorizeUser, updateUser);
+router.delete("/delete/:id", verifyAndAuthorizeUser, deleteUser);
 
 module.exports = router;

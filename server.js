@@ -7,7 +7,7 @@ const userRouter = require("./routes/user.routes");
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
-server.use("/api/auth", userRouter);
+server.use("/api/auth/user", userRouter);
 
 const runServer = (port) => {
   mongoSetUp()
