@@ -4,10 +4,12 @@ const { mongoSetUp } = require("./configs/mongoConnect");
 const dotenv = require("dotenv").config();
 const port = process.env.PORT || 4000;
 const userRouter = require("./routes/user.routes");
+const productRouter = require("./routes/product.routes");
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use("/api/auth", userRouter);
+server.use("/api/product", productRouter);
 
 const runServer = (port) => {
   mongoSetUp()
