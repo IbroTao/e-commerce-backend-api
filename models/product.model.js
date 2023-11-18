@@ -7,12 +7,6 @@ const ProductSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-    },
     description: {
       type: String,
       required: true,
@@ -27,6 +21,7 @@ const ProductSchema = new mongoose.Schema(
     },
     quantity: {
       type: Number,
+      required: true,
     },
     images: {
       type: Array,
