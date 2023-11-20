@@ -2,8 +2,9 @@ const { hashSync, compareSync, compare, hash } = require("bcryptjs");
 const { User } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("./email.contoller");
+const session = require("express-session");
 
-// REGISTERING USER(S)
+// REGISTER USER
 const registerUser = async (req, res) => {
   try {
     const { firstname, lastname, mobile, email, password } = req.body;
@@ -22,7 +23,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-// LOGGING IN USER(S)
+// LOGIN USER
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -38,6 +39,7 @@ const loginUser = async (req, res) => {
           {
             sub: user._id,
             role: user.role,
+            isAuthor: user.isAuthor,
           },
           process.env.SECRET,
           {
@@ -56,6 +58,8 @@ const loginUser = async (req, res) => {
     res.status(500).json(err);
   }
 };
+
+//LOGOUT USER
 
 // UPDATE USER
 const updateUser = async (req, res) => {
@@ -171,15 +175,14 @@ const updatePassword = async (req, res) => {
 };
 
 // NOTIFY USERS
-const notifyUser = async (req, res) => {
-  const { email } = req.body;
+const notifyUsers = async (req, res) => {
+  const { email, text, subject, html } = req.body;
   try {
-    const resetURL = `Hi, it's seems your email was logged in another device. Please follow this link to update your password. <a href='https://locahost:5500/api/auth/update/:id'>Click here</>`;
     const data = {
       to: email,
-      text: "Hey User",
-      subject: "Update Password",
-      html: resetURL,
+      text: text,
+      subject: subject,
+      html: html,
     };
     sendEmail(data);
     res.status(200).json("Email sent!");
@@ -198,5 +201,5 @@ module.exports = {
   blockUser,
   unblockUser,
   updatePassword,
-  notifyUser,
+  notifyUsers,
 };

@@ -8,7 +8,7 @@ const {
   blockUser,
   unblockUser,
   updatePassword,
-  notifyUser,
+  notifyUsers,
 } = require("../controllers/user.controller");
 const {
   verifyAndAuthorizeAdmin,
@@ -23,7 +23,7 @@ router.get("/user/:id", verifyUser, getSingleUser);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/update/:id", verifyUser, updatePassword);
-router.post("/notify", verifyUser, notifyUser);
+router.post("/notify", verifyUser, notifyUsers);
 router.put("/change/:id", verifyAndAuthorizeUser, updateUser);
 router.put("/block/:id", verifyAndAuthorizeAdmin, blockUser);
 router.put("/unblock/:id", verifyAndAuthorizeAdmin, unblockUser);

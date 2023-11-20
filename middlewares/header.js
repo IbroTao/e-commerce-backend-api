@@ -28,8 +28,17 @@ const verifyAndAuthorizeAdmin = async (req, res, next) => {
   });
 };
 
+const verifyAndAuthorizeAuthor = async (req, res, next) => {
+  verifyUser(req, res, () => {
+    if (req.user.isAuthor) {
+      next();
+    } else res.status(403).json("Permission denied");
+  });
+};
+
 module.exports = {
   verifyUser,
   verifyAndAuthorizeUser,
   verifyAndAuthorizeAdmin,
+  verifyAndAuthorizeAuthor,
 };
