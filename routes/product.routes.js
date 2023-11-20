@@ -12,10 +12,10 @@ const {
 } = require("../controllers/product.controller");
 const router = Router();
 
-router.get("/:id", verifyUser, getProduct);
 router.get("/", verifyAndAuthorizeAdmin, getAllProducts);
-router.post("/create", verifyUser, createProduct);
-router.put("/:id", verifyUser, updateProduct);
-router.delete("/:id", verifyUser, deleteProduct);
+router.get("/:id", verifyUser, getProduct);
+router.post("/create", verifyAndAuthorizeAdmin, createProduct);
+router.put("/:id", verifyUser, verifyAndAuthorizeAdmin, updateProduct);
+router.delete("/:id", verifyUser, verifyAndAuthorizeAdmin, deleteProduct);
 
 module.exports = router;

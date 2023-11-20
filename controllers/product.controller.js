@@ -5,7 +5,7 @@ const createProduct = async (req, res) => {
     const product = await Product.create(req.body);
     res.status(200).json(product);
   } catch (err) {
-    res.status(500).json(err);
+    console.log(err);
   }
 };
 
@@ -49,9 +49,9 @@ const getProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-    const product = await Product.find().sort({
-      createdAt: "asc",
-    });
+    const queryObj = { ...req.query };
+    console.log(queryObj);
+    const product = await Product.where("brand").equals(req.query.brand);
     res.status(200).json(product);
   } catch (err) {
     res.status(500).json(err);
