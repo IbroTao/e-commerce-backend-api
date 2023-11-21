@@ -1,5 +1,9 @@
 const { Router } = require("express");
-const { verifyAndAuthorizeAuthor } = require("../middlewares/header");
+const {
+  verifyAndAuthorizeAuthor,
+  verifyUser,
+} = require("../middlewares/header");
+const { restrictBlockedUser } = require("../middlewares/header");
 const {
   createBlog,
   updateBlog,
@@ -9,10 +13,20 @@ const {
 } = require("../controllers/blog.contoller");
 const router = Router();
 
-router.post("/create", verifyAndAuthorizeAuthor, createBlog);
-router.put("/:id", verifyAndAuthorizeAuthor, updateBlog);
-router.get("/all", verifyAndAuthorizeAuthor, getAllBlogs);
-router.get("/:id", verifyAndAuthorizeAuthor, getSingleUser);
-router.delete("/:id", verifyAndAuthorizeAuthor, deleteBlog);
+router.post(
+  "/create",
+  verifyAndAuthorizeAuthor,
+  restrictBlockedUser,
+  createBlog
+);
+router.put("/:id", verifyAndAuthorizeAuthor, restrictBlockedUser, updateBlog);
+router.get("/all", verifyAndAuthorizeAuthor, restrictBlockedUser, getAllBlogs);
+router.get("/:id", verifyUser, restrictBlockedUser, getSingleBlog);
+router.delete(
+  "/:id",
+  verifyAndAuthorizeAuthor,
+  restrictBlockedUser,
+  deleteBlog
+);
 
 module.exports = router;

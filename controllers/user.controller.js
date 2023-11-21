@@ -40,6 +40,7 @@ const loginUser = async (req, res) => {
             sub: user._id,
             role: user.role,
             isAuthor: user.isAuthor,
+            isBlocked: user.isBlocked,
           },
           process.env.SECRET,
           {
@@ -63,21 +64,14 @@ const loginUser = async (req, res) => {
 
 // UPDATE USER
 const updateUser = async (req, res) => {
-  const { firstname, lastname, mobile, email, password } = req.body;
+  const { firstname, lastname, mobile, email } = req.body;
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-        firstname: req.body,
-        lastname: req.body,
-        mobile: req.body,
-        email: req.body,
-        password: req.body,
-      },
-      {
-        new: true,
-      }
-    );
+    const user = await User.findByIdAndUpdate(req.params.id, {
+      firstname,
+      lastname,
+      mobile,
+      email,
+    });
     res.status(200).json("User info changed and updated");
   } catch (err) {
     res.status(500).json(err);

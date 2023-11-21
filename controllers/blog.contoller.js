@@ -1,5 +1,6 @@
 const { Blog } = require("../models/blog.model");
 
+// CREATE BLOG
 const createBlog = async (req, res) => {
   try {
     const blog = await Blog.create(req.body);
@@ -9,6 +10,7 @@ const createBlog = async (req, res) => {
   }
 };
 
+// UPDATE BLOG
 const updateBlog = async (req, res) => {
   const { title, description, author, category } = req.body;
   try {
@@ -24,6 +26,7 @@ const updateBlog = async (req, res) => {
   }
 };
 
+// DELETE BLOG
 const deleteBlog = async (req, res) => {
   try {
     const blog = await Blog.findByIdAndDelete(req.params.id);
@@ -33,20 +36,30 @@ const deleteBlog = async (req, res) => {
   }
 };
 
+// GET BLOG
 const getSingleBlog = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
+    await Blog.findByIdAndUpdate(
+      req.params.id,
+      {
+        $inc: { views: 1 },
+      },
+      { new: true }
+    );
     res.status(200).json(blog);
   } catch (err) {
     res.status(500).json(err);
   }
 };
 
+// GET ALL BLOGS
 const getAllBlogs = async (req, res) => {
   try {
     const blog = await Blog.find().sort({
       createdAt: "desc",
     });
+    res.status(200).json(blog);
   } catch (err) {
     res.status(500).json(err);
   }

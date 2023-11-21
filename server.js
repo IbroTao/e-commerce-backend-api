@@ -25,7 +25,7 @@ const runServer = (port) => {
   mongoSetUp()
     .then((res) => {
       server.listen(port);
-      console.log(`Server is running on ${port}`);
+      console.log(`Server is running on PORT ${port}`);
     })
     .catch((err) => {
       console.log(err);

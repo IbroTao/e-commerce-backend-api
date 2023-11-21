@@ -24,7 +24,10 @@ const verifyAndAuthorizeAdmin = async (req, res, next) => {
   verifyUser(req, res, () => {
     if (req.user.role === "admin") {
       next();
-    } else res.status(403).json("Permission denied");
+    } else
+      res
+        .status(403)
+        .json("Permission denied, only Admin(s) can perform this task");
   });
 };
 
@@ -32,7 +35,21 @@ const verifyAndAuthorizeAuthor = async (req, res, next) => {
   verifyUser(req, res, () => {
     if (req.user.isAuthor) {
       next();
-    } else res.status(403).json("Permission denied");
+    } else
+      res
+        .status(403)
+        .json("Permission denied, only Author(s) can perform this task");
+  });
+};
+
+const restrictBlockedUser = async (req, res, next) => {
+  verifyUser(req, res, () => {
+    if (!req.user.isBlocked) {
+      next();
+    } else
+      res
+        .status(403)
+        .json("Permission denied, you have been blocked and restricted");
   });
 };
 
@@ -41,4 +58,5 @@ module.exports = {
   verifyAndAuthorizeUser,
   verifyAndAuthorizeAdmin,
   verifyAndAuthorizeAuthor,
+  restrictBlockedUser,
 };
