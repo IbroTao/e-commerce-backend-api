@@ -10,6 +10,8 @@ const {
   deleteBlog,
   getSingleBlog,
   getAllBlogs,
+  likeBlog,
+  dislikeBlog,
 } = require("../controllers/blog.contoller");
 const router = Router();
 
@@ -19,6 +21,8 @@ router.post(
   restrictBlockedUser,
   createBlog
 );
+router.put("/like", verifyUser, restrictBlockedUser, likeBlog);
+router.put("/dislike", verifyUser, restrictBlockedUser, dislikeBlog);
 router.put("/:id", verifyAndAuthorizeAuthor, restrictBlockedUser, updateBlog);
 router.get("/all", verifyAndAuthorizeAuthor, restrictBlockedUser, getAllBlogs);
 router.get("/:id", verifyUser, restrictBlockedUser, getSingleBlog);

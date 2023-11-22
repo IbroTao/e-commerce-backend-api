@@ -32,6 +32,7 @@ const loginUser = async (req, res) => {
       res.status(404).json("User not found");
     } else {
       const comparePassword = compareSync(password, user.password);
+      console.log(comparePassword);
       if (!comparePassword) {
         res.status(400).json("Incorrect password(s).");
       } else {
