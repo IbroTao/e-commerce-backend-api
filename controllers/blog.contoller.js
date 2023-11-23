@@ -39,7 +39,9 @@ const deleteBlog = async (req, res) => {
 // GET BLOG
 const getSingleBlog = async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id);
+    const blog = await Blog.findById(req.params.id)
+      .populate("likes")
+      .populate("dislikes");
     const updatedBlog = await Blog.findByIdAndUpdate(
       req.params.id,
       {
@@ -47,9 +49,9 @@ const getSingleBlog = async (req, res) => {
       },
       { new: true }
     );
-    res.status(200).json(updatedBlog);
+    res.status(200).json(blog);
   } catch (err) {
-    res.status(500).json(err);
+    console.log(err);
   }
 };
 
@@ -125,17 +127,17 @@ const dislikeBlog = async (req, res) => {
   const blog = await Blog.findById(BlogId);
   const loginUserId = req.user.sub;
   const isDisliked = blog.isDisliked;
-  const alreadyLiked = blog.likes.find(
+  const isLiked = blog.likes.find(
     (userId) => userId.toString() === loginUserId.toString()
   );
-  if (alreadyLiked) {
+  if (isLiked) {
     const blog = await Blog.findByIdAndUpdate(
       BlogId,
       {
         $pull: {
           likes: loginUserId,
         },
-        alreadyLiked: false,
+        isLiked: false,
       },
       {
         new: true,

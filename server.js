@@ -6,7 +6,8 @@ const session = require("express-session");
 const port = process.env.PORT || 4000;
 const userRouter = require("./routes/user.routes");
 const productRouter = require("./routes/product.routes");
-const blogProduct = require("./routes/blog.routes");
+const blogRouter = require("./routes/blog.routes");
+const categoryRouter = require("./routes/category.routes");
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
@@ -19,7 +20,8 @@ server.use(
 );
 server.use("/api/auth", userRouter);
 server.use("/api/product", productRouter);
-server.use("/api/blog", blogProduct);
+server.use("/api/blog", blogRouter);
+server.use("/api/category", categoryRouter);
 
 const runServer = (port) => {
   mongoSetUp()
