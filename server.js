@@ -7,7 +7,7 @@ const port = process.env.PORT || 4000;
 const userRouter = require("./routes/user.routes");
 const productRouter = require("./routes/product.routes");
 const blogRouter = require("./routes/blog.routes");
-const categoryRouter = require("./routes/category.routes");
+const categoryRouter = require("./routes/prodCategory.routes");
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
