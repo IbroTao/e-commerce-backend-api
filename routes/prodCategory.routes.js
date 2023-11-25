@@ -2,11 +2,14 @@ const { Router } = require("express");
 const {
   verifyAndAuthorizeAdmin,
   restrictBlockedUser,
+  verifyUser,
 } = require("../middlewares/header");
 const {
   createCategory,
   updateCategory,
   deleteCategory,
+  getCategory,
+  getAllCategory,
 } = require("../controllers/prodCategory.controller");
 const router = Router();
 
@@ -27,6 +30,14 @@ router.delete(
   verifyAndAuthorizeAdmin,
   restrictBlockedUser,
   deleteCategory
+);
+
+router.get("/:id", verifyUser, restrictBlockedUser, getCategory);
+router.get(
+  "/all",
+  verifyAndAuthorizeAdmin,
+  restrictBlockedUser,
+  getAllCategory
 );
 
 module.exports = router;

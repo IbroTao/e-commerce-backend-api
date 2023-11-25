@@ -29,4 +29,30 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-module.exports = { createCategory, updateCategory, deleteCategory };
+const getCategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    res.status(200).json(category);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const getAllCategory = async (req, res) => {
+  try {
+    const category = await Category.find().sort({
+      createdAt: "desc",
+    });
+    res.status(200).json(category);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = {
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getCategory,
+  getAllCategory,
+};
