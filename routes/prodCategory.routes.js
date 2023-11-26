@@ -32,12 +32,12 @@ router.delete(
   deleteCategory
 );
 
-router.get("/:id", verifyUser, restrictBlockedUser, getCategory);
 router.get(
   "/all",
   verifyAndAuthorizeAdmin,
   restrictBlockedUser,
   getAllCategory
 );
+router.get("/:id", verifyUser, restrictBlockedUser, getCategory);
 
 module.exports = router;
