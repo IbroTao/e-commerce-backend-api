@@ -47,7 +47,7 @@ const UserSchema = new mongoose.Schema(
     wishlist: [
       {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "Product",
+        ref: "products",
       },
     ],
   },
