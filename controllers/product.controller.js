@@ -1,4 +1,5 @@
 const { Product } = require("../models/product.model");
+const { User } = require("../models/user.model");
 
 const createProduct = async (req, res) => {
   try {
@@ -53,6 +54,16 @@ const getAllProducts = async (req, res) => {
     console.log(queryObj);
     const product = await Product.where("brand").equals(req.query.brand);
     res.status(200).json(product);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const addToWishlist = async (req, res) => {
+  const { _id } = req.user;
+  const { prodId } = req.body;
+  try {
+    const user = await User.findById(_id);
   } catch (err) {
     res.status(500).json(err);
   }

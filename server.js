@@ -9,6 +9,7 @@ const productRouter = require("./routes/product.routes");
 const blogRouter = require("./routes/blog.routes");
 const categoryRouter = require("./routes/prodCategory.routes");
 const blogCategoryRouter = require("./routes/blogCategory.routes");
+const brandRouter = require("./routes/brand.routes");
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
@@ -24,6 +25,7 @@ server.use("/api/product", productRouter);
 server.use("/api/blog", blogRouter);
 server.use("/api/category", categoryRouter);
 server.use("/api/blogCategory", blogCategoryRouter);
+server.use("/api/brand", brandRouter);
 
 const runServer = (port) => {
   mongoSetUp()
