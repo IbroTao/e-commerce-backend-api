@@ -113,13 +113,12 @@ const rateProduct = async (req, res) => {
           ratings: { $elemMatch: alreadyRated },
         },
         {
-          $set: { "ratings.$.stars": star },
+          $set: { "ratings.$.stars": stars },
         },
         {
           new: true,
         }
       );
-      res.status(200).json(product);
     } else {
       const product = await Product.findByIdAndUpdate(
         prodId,
@@ -135,8 +134,23 @@ const rateProduct = async (req, res) => {
           new: true,
         }
       );
-      res.status(200).json(product);
     }
+    const getAllRatings = await Product.findById(prodId);
+    let totalRating = getAllRatings.ratings.length;
+    let ratingSum = getAllRatings.ratings
+      .map((item) => item.stars)
+      .reduce((prev, curr) => prev + curr, 0);
+    let actualRating = Math.round(ratingSum / totalRating);
+    let finalProductRating = await Product.findByIdAndUpdate(
+      prodId,
+      {
+        totalRatings: actualRating,
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json(finalProductRating);
   } catch (err) {
     res.status(500).json(err);
   }

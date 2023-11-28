@@ -47,8 +47,8 @@ const ProductSchema = new mongoose.Schema(
         },
       },
     ],
-    totalratings: {
-      type: Number,
+    totalRatings: {
+      type: String,
       default: 0,
     },
   },
