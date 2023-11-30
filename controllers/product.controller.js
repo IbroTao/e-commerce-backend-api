@@ -26,7 +26,7 @@ const updateProduct = async (req, res) => {
     );
     res.status(200).json(product);
   } catch (err) {
-    console.log(err);
+    res.aatlog(err);
   }
 };
 
@@ -101,7 +101,7 @@ const addToWishlist = async (req, res) => {
 
 const rateProduct = async (req, res) => {
   const { sub } = req.user;
-  const { stars, prodId } = req.body;
+  const { stars, prodId, comment } = req.body;
   try {
     const product = await Product.findById(prodId);
     let alreadyRated = product.ratings.find(
@@ -113,7 +113,10 @@ const rateProduct = async (req, res) => {
           ratings: { $elemMatch: alreadyRated },
         },
         {
-          $set: { "ratings.$.stars": stars },
+          $set: {
+            "ratings.$.stars": stars,
+            "ratings.$.comment": comment,
+          },
         },
         {
           new: true,
@@ -126,6 +129,7 @@ const rateProduct = async (req, res) => {
           $push: {
             ratings: {
               stars: stars,
+              comment: comment,
               postedBy: sub,
             },
           },
