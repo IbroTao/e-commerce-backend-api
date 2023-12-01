@@ -11,9 +11,12 @@ const categoryRouter = require("./routes/prodCategory.routes");
 const blogCategoryRouter = require("./routes/blogCategory.routes");
 const brandRouter = require("./routes/brand.routes");
 const couponRouter = require("./routes/coupon.routes");
+const { notFound, errorHandler } = require("./middlewares/errorHandler");
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
+server.use(notFound);
+server.use(errorHandler);
 server.use(
   session({
     secret: process.env.SECRET,

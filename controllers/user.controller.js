@@ -3,13 +3,13 @@ const { User } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("./email.contoller");
 const session = require("express-session");
+const asyncHandler = require("express-async-handler");
 
 // REGISTER USER
-const registerUser = async (req, res) => {
-  try {
-    const { firstname, lastname, mobile, email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (user) res.status(400).json("Email already used, try another email");
+const registerUser = asyncHandler(async (req, res) => {
+  const { firstname, lastname, mobile, email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
     await User.create({
       firstname,
       lastname,
@@ -18,13 +18,13 @@ const registerUser = async (req, res) => {
       password: hashSync(password, 10),
     });
     res.status(201).json("User registered");
-  } catch (err) {
-    res.status(500).json(err);
+  } else {
+    throw new Error("User already exists");
   }
-};
+});
 
 // LOGIN USER
-const loginUser = async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -59,12 +59,11 @@ const loginUser = async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-};
-
+});
 //LOGOUT USER
 
 // UPDATE USER
-const updateUser = async (req, res) => {
+const updateUser = asyncHandler(async (req, res) => {
   const { firstname, lastname, mobile, email } = req.body;
   try {
     const user = await User.findByIdAndUpdate(req.params.id, {
@@ -77,7 +76,7 @@ const updateUser = async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-};
+});
 
 // DELETE A USER
 const deleteUser = async (req, res) => {

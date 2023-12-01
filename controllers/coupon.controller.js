@@ -33,4 +33,14 @@ const updateCoupon = async (req, res) => {
   }
 };
 
-module.exports = { createCoupon, getAllCoupons, updateCoupon };
+const deleteCoupon = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const coupon = await Coupon.findByIdAndDelete(id);
+    res.status(200).json("Coupon deleted");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = { createCoupon, getAllCoupons, updateCoupon, deleteCoupon };

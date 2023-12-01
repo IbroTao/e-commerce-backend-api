@@ -1,9 +1,22 @@
 const { Product } = require("../models/product.model");
 const { User } = require("../models/user.model");
+const { uploadImageToCloud } = require("../utilis/cloudinary");
 
 const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const { file, body } = req;
+    console.log(req);
+    const url = await uploadImageToCloud(file.path);
+    const product = await Product.create({
+      images: url,
+      title: body.title,
+      description: body.description,
+      color: body.color,
+      brand: body.brand,
+      category: body.category,
+      price: body.price,
+      quantity: body.quantity,
+    });
     res.status(200).json(product);
   } catch (err) {
     console.log(err);
