@@ -1,4 +1,5 @@
 const { Blog } = require("../models/blog.model");
+const { validateMongoId } = require("../utilis/validateMongoId");
 
 // CREATE BLOG
 const createBlog = async (req, res) => {
@@ -13,8 +14,9 @@ const createBlog = async (req, res) => {
 // UPDATE BLOG
 const updateBlog = async (req, res) => {
   const { title, description, author, category } = req.body;
+  validateMongoId(id);
   try {
-    const blog = await Blog.findByIdAndUpdate(req.params.id, {
+    const blog = await Blog.findByIdAndUpdate(id, {
       title,
       description,
       author,
@@ -28,8 +30,10 @@ const updateBlog = async (req, res) => {
 
 // DELETE BLOG
 const deleteBlog = async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
   try {
-    const blog = await Blog.findByIdAndDelete(req.params.id);
+    const blog = await Blog.findByIdAndDelete(id);
     res.status(200).json("Blog deleted successfully");
   } catch (err) {
     res.status(500).json(err);
@@ -38,10 +42,10 @@ const deleteBlog = async (req, res) => {
 
 // GET BLOG
 const getSingleBlog = async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
   try {
-    const blog = await Blog.findById(req.params.id)
-      .populate("likes")
-      .populate("dislikes");
+    const blog = await Blog.findById(id).populate("likes").populate("dislikes");
     const updatedBlog = await Blog.findByIdAndUpdate(
       req.params.id,
       {
@@ -70,6 +74,7 @@ const getAllBlogs = async (req, res) => {
 // LIKE A BLOG
 const likeBlog = async (req, res) => {
   const { BlogId } = req.body;
+  validateMongoId({ id: BlogId });
   const blog = await Blog.findById(BlogId);
   const loginUserId = req.user.sub;
   const isLiked = blog.isLiked;
@@ -124,6 +129,7 @@ const likeBlog = async (req, res) => {
 
 const dislikeBlog = async (req, res) => {
   const { BlogId } = req.body;
+  validateMongoId({ id: BlogId });
   const blog = await Blog.findById(BlogId);
   const loginUserId = req.user.sub;
   const isDisliked = blog.isDisliked;

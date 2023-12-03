@@ -2,7 +2,6 @@ const express = require("express");
 const server = express();
 const { mongoSetUp } = require("./configs/mongoConnect");
 const dotenv = require("dotenv").config();
-const session = require("express-session");
 const port = process.env.PORT || 4000;
 const userRouter = require("./routes/user.routes");
 const productRouter = require("./routes/product.routes");
@@ -12,18 +11,12 @@ const blogCategoryRouter = require("./routes/blogCategory.routes");
 const brandRouter = require("./routes/brand.routes");
 const couponRouter = require("./routes/coupon.routes");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
+const cookieParser = require("cookie-parser");
 
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
-server.use(notFound);
-server.use(errorHandler);
-server.use(
-  session({
-    secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+server.use(cookieParser());
+
 server.use("/api/auth", userRouter);
 server.use("/api/product", productRouter);
 server.use("/api/blog", blogRouter);
@@ -31,6 +24,9 @@ server.use("/api/category", categoryRouter);
 server.use("/api/blogCategory", blogCategoryRouter);
 server.use("/api/brand", brandRouter);
 server.use("/api/coupon", couponRouter);
+
+server.use(notFound);
+server.use(errorHandler);
 
 const runServer = (port) => {
   mongoSetUp()

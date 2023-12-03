@@ -1,7 +1,7 @@
-const notFound = async (req, res, next) => {
+const notFound = (req, res, next) => {
   const error = new Error(`Not found: ${req.originalUrl}`);
   res.status(404);
-  next();
+  next(error);
 };
 
 const errorHandler = (err, req, res, next) => {

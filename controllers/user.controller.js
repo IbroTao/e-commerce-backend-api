@@ -2,22 +2,24 @@ const { hashSync, compareSync, compare, hash } = require("bcryptjs");
 const { User } = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("./email.contoller");
-const session = require("express-session");
 const asyncHandler = require("express-async-handler");
+const { validateMongoId } = require("../utilis/validateMongoId");
+const { generateToken } = require("../configs/generateToken");
+const { generateRefreshToken } = require("../configs/refreshToken");
 
 // REGISTER USER
 const registerUser = asyncHandler(async (req, res) => {
   const { firstname, lastname, mobile, email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    await User.create({
+    const newUser = await User.create({
       firstname,
       lastname,
       email,
       mobile,
       password: hashSync(password, 10),
     });
-    res.status(201).json("User registered");
+    res.status(201).json(newUser);
   } else {
     throw new Error("User already exists");
   }
@@ -26,47 +28,79 @@ const registerUser = asyncHandler(async (req, res) => {
 // LOGIN USER
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      res.status(404).json("User not found");
-    } else {
-      const comparePassword = compareSync(password, user.password);
-      console.log(comparePassword);
-      if (!comparePassword) {
-        res.status(400).json("Incorrect password(s).");
-      } else {
-        const accessToken = await jwt.sign(
-          {
-            sub: user._id,
-            role: user.role,
-            isAuthor: user.isAuthor,
-            isBlocked: user.isBlocked,
-          },
-          process.env.SECRET,
-          {
-            expiresIn: "3d",
-          }
-        );
-
-        const returnUser = await User.findById(user._id).select(["-password"]);
-        res.status(200).json({
-          user: returnUser,
-          token: accessToken,
-        });
+  const user = await User.findOne({ email });
+  const comparePassword = compareSync(password, user.password);
+  if (user && comparePassword) {
+    const refreshToken = await generateRefreshToken(user._id);
+    const updateUser = await User.findByIdAndUpdate(
+      user.id,
+      {
+        refreshToken: refreshToken,
+      },
+      {
+        new: true,
       }
-    }
-  } catch (err) {
-    res.status(500).json(err);
+    );
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    });
+    res.json({
+      _id: user._id,
+      user: user,
+      token: generateToken(user?._id),
+    });
+  } else {
+    throw new Error("Invalid credentials");
   }
 });
+
+// HANDLE REFRESH TOKEN
+const handleRefreshToken = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if (!cookie.refreshToken) throw new Error("No Refresh Token in Cookies");
+  const refreshToken = cookie.refreshToken;
+  const user = await User.findOne({ refreshToken });
+  if (!user) throw new Error("No Refresh Token attached to User");
+  jwt.verify(refreshToken, process.env.SECRET, (err, decoded) => {
+    if (err || user.id !== decoded.id) {
+      throw new Error("Wrong refresh token");
+    }
+    const accessToken = generateToken(user?._id);
+    res.json({ accessToken });
+  });
+});
+
 //LOGOUT USER
+const logoutUser = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if (!cookie.refreshToken) throw new Error("No Refresh Token in Cookies");
+  const refreshToken = cookie.refreshToken;
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+    });
+    return res.sendStatus(204);
+  }
+  await User.findOneAndUpdate(refreshToken, {
+    refreshToken: "",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+  });
+  return res.sendStatus(204);
+});
 
 // UPDATE USER
 const updateUser = asyncHandler(async (req, res) => {
   const { firstname, lastname, mobile, email } = req.body;
+  const { id } = req.params;
+  validateMongoId(id);
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, {
+    const user = await User.findByIdAndUpdate(id, {
       firstname,
       lastname,
       mobile,
@@ -80,17 +114,20 @@ const updateUser = asyncHandler(async (req, res) => {
 
 // DELETE A USER
 const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(id);
     res.status(200).json("User deleted");
   } catch (err) {
     res.status(500).json(err);
   }
 };
 
-// GETTING A SINGLE USER
+// GET A SINGLE USER
 const getSingleUser = async (req, res) => {
   const { id } = req.params;
+  validateMongoId(id);
   try {
     const user = await User.findById(id);
     res.status(200).json(user);
@@ -99,7 +136,7 @@ const getSingleUser = async (req, res) => {
   }
 };
 
-// GETTING ALL USERS
+// GET ALL USERS
 const getAllUsers = async (req, res) => {
   try {
     const user = await User.find().sort({
@@ -113,9 +150,11 @@ const getAllUsers = async (req, res) => {
 
 // BLOCK A USER
 const blockUser = async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
   try {
     const user = await User.findByIdAndUpdate(
-      req.params.id,
+      id,
       {
         isBlocked: true,
       },
@@ -131,9 +170,11 @@ const blockUser = async (req, res) => {
 
 // UNBLOCK A USER
 const unblockUser = async (req, res) => {
+  const { id } = req.params;
+  validateMongoId(id);
   try {
     const user = await User.findByIdAndUpdate(
-      req.params.id,
+      id,
       {
         isBlocked: false,
       },
@@ -150,6 +191,7 @@ const unblockUser = async (req, res) => {
 // UPDATE USER PASSWORD
 const updatePassword = async (req, res) => {
   const { id } = req.params;
+  validateMongoId(id);
   const { oldPassword, newPassword } = req.body;
   try {
     const user = await User.findById(id);
@@ -196,4 +238,6 @@ module.exports = {
   unblockUser,
   updatePassword,
   notifyUsers,
+  handleRefreshToken,
+  logoutUser,
 };

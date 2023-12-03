@@ -9,6 +9,8 @@ const {
   unblockUser,
   updatePassword,
   notifyUsers,
+  handleRefreshToken,
+  logoutUser,
 } = require("../controllers/user.controller");
 const {
   verifyAndAuthorizeAdmin,
@@ -19,6 +21,8 @@ const {
 const router = require("express").Router();
 
 router.get("/users", verifyAndAuthorizeAdmin, getAllUsers);
+router.get("/refresh", handleRefreshToken);
+router.get("/logout", logoutUser);
 router.get("/user/:id", verifyUser, getSingleUser);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
